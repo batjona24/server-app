@@ -5,9 +5,9 @@ app.use(express.json());
 
 app.post('/set', async (request, response) => {
     const body = request.body;
-    await fsp.writeFile("data.json", body);
+    const file = await fsp.writeFile("data.json", body);
     response.status(200);
-    response.json(body);
+    response.json(file);
 });
 
 app.get('/get', async (request, response) => {
