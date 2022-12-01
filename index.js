@@ -1,36 +1,89 @@
-import fsp from 'fs/promises';
+import fsp from 'fs/promises'
 import express from 'express';
-
 const app = express();
 app.use(express.json());
 
-app.post('/set', async (request, response) => {
-    const body = request.body;
-    const file = await fsp.writeFile("data.json", body);
-    response.status(200);
-    response.json(file);
+app.post('/trip', async (request, response) => {
+    const trip = request.body
+    const database = await fsp.readFile("database.json", "utf-8")
+    const databaseParsed = JSON.parse(database)
+    const id = databaseParsed.length + 1
+    trip.id = id
+    databaseParsed.push(trip)
+    await fsp.writeFile("database.json", JSON.stringify(databaseParsed, null, 4))
+    response.status(200)
+    response.json(trip)
 });
 
-app.get('/get', async (request, response) => {
-    const content = await fsp.readFile("./data.json","utf-8"); 
-    response.status(200);
-    response.json(content);
+app.get('/trip/:id', async (request, response) => {
+    const id = Number(request.params.id)
+    const database = await fsp.readFile("database.json", "utf-8")
+    const databaseParsed = JSON.parse(database)
+    const trip = databaseParsed.find((trip) => {
+        return trip.id === id
+    })
+    if (trip) {
+        response.status(200)
+        response.json(trip)
+    } else {
+        response.status(404)
+        response.json(`Trip with the selected id: ${id} , does not exist`)
+    }
+
 });
 
-app.delete('/remove', async (request, response) => {
-    await fsp.unlink("data.json");
-    response.status(200);
-    response.json(true);
+app.get('/trip', async (request, response) => {
+    const database = await fsp.readFile("database.json", "utf-8")
+    const databaseParsed = JSON.parse(database)
+    response.status(200)
+    response.json(databaseParsed)
+});
+
+app.put('/trip/:id', async (request, response) => {
+    const id = Number(request.params.id)
+    const database = await fsp.readFile("database.json", "utf-8")
+    const databaseParsed = JSON.parse(database)
+    const trip = databaseParsed.find((trip) => {
+        return trip.id === id
+    })
+    if (trip) {
+        trip.destination = request.body.destination
+        trip.date = request.body.date
+        await fsp.writeFile("database.json", JSON.stringify(databaseParsed, null, 4))
+        response.status(200)
+        response.json(trip)
+    } else {
+        response.status(404)
+        response.json(`Trip with the selected id: ${id} , does not exist`)
+    }
+});
+
+app.delete('/trip/:id', async (request, response) => {
+    const id = Number(request.params.id)
+    const database = await fsp.readFile("database.json", "utf-8")
+    const databaseParsed = JSON.parse(database)
+    const trip = databaseParsed.find((trip) => {
+        return trip.id === id
+    })
+    if (trip) {
+        const array=databaseParsed.filter((trip)=> trip.id != id)
+        await fsp.writeFile("database.json", JSON.stringify(array, null, 4))
+        response.status(200)
+        response.json(array)
+    } else {
+        response.status(404)
+        response.json(`Trip with the selected id: ${id} , does not exist`)
+    }
 });
 
 app.all('/*', async (request, response) => {
     response.status(404);
-    response.json({ error: 'I can only give you authors, this route does not exist' });
+    response.json({ error: 'This route does not exist' });
 });
 
 const hostname = 'localhost';
 const port = 3000;
 
 app.listen(port, hostname, () => {
-  console.log(`Server listening on http://${hostname}:${port}`)
+    console.log(`Server listening on http://${hostname}:${port}`)
 });
