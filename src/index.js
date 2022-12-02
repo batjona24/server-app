@@ -15,14 +15,13 @@ app.post('/trip', async (request, response) => {
 app.get('/trip/:id', async (request, response) => {
     const id = request.params.id;
     const result = await database.raw(`select * from trips where id = ${id}`);
-    //this does not work, still returns 200 and an empty array
-    if(result !==[]) {
+    if(result.length !== 0) {
       response.status(200);
       response.json(result);  
     }
     else {
         response.status(404);
-        response.json(`The trip with id: ${id} NOT FOUND!`);
+        response.json(`The trip with id = ${id} NOT FOUND!`);
     }
     
 });
@@ -46,8 +45,15 @@ app.put('/trip/:id', async (request, response) => {
 app.delete('/trip/:id', async (request, response) => {
     const id = request.params.id;
     const result = await database.raw(`delete from trips where id=${id}`);
-    response.status(200);
-    response.json(true);
+    if(result.length !== 0) {
+        response.status(200);
+        response.json(result);  
+      }
+      else {
+          response.status(404);
+          response.json(`The trip with id = ${id} NOT FOUND!`);
+      }
+
 });
 
 app.all('/*', async (request, response) => {
