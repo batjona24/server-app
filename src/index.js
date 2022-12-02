@@ -47,13 +47,12 @@ app.delete('/trip/:id', async (request, response) => {
     const result = await database.raw(`delete from trips where id=${id}`);
     if(result.length !== 0) {
         response.status(200);
-        response.json(result);  
+        response.json(true);  
       }
-      else {
+    else {
           response.status(404);
           response.json(`The trip with id = ${id} NOT FOUND!`);
-      }
-
+    }
 });
 
 app.all('/*', async (request, response) => {
