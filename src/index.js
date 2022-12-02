@@ -50,8 +50,8 @@ app.delete('/trip/:id', async (request, response) => {
         response.json(true);  
       }
     else {
-          response.status(404);
-          response.json(`The trip with id = ${id} NOT FOUND!`);
+        response.status(404);
+        response.json(`The trip with id = ${id} NOT FOUND!`);
     }
 });
 
