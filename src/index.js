@@ -51,8 +51,8 @@ app.delete('/trip/:id', async (request, response) => {
       }
     else {
         response.status(404);
-        response.json(`The trip with id = ${id} NOT FOUND!`);
-    }
+        response.json(`The trip with id = ${id} does not exist!`);
+      }
 });
 
 app.all('/*', async (request, response) => {
